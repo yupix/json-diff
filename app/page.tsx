@@ -15,19 +15,36 @@ function getType(obj: any): string {
   if (obj === null) {
     return 'None';
   }
-  const mapping = {
-    'string': 'str',
-    'number': 'int',
-    'boolean': 'bool',
-    'object': 'dict',
-    'array': 'list',
+
+  const mappigType = {
+    "string": "str",
+    "number": "int",
+    "bigint": "int",
+    "boolean": "bool",
+    "symbol": "symbol",
+    "undefined": "undefined",
+    "object": "dict",
+    "function": "function"
+  } as const;
+
+  const mapping: typeof mappigType = {
+    "string": "str",
+    "number": "int",
+    "bigint": "int",
+    "boolean": "bool",
+    "symbol": "symbol",
+    "undefined": "undefined",
+    "object": "dict",
+    "function": "function"
   }
-  return mapping[typeof obj] || typeof obj;
+
+  const type = typeof obj;
+  return mapping[type] || typeof obj;
 }
 
-function createTypedDict(datas: {key: string, type: string[]}[]) {
+function createTypedDict(datas: { key: string, type: string[] }[]) {
   let typedDict = "class Data(TypedDict):\n";
-  for (const {key, type} of datas) {
+  for (const { key, type } of datas) {
     const snakeCaseKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
     typedDict += `  ${snakeCaseKey}: ${type.toString().replace(',', ' | ')}\n`;
   }
@@ -44,7 +61,7 @@ function getKeyDiff(obj1: any, obj2: any): KeyDiff {
       if (!(key in obj2)) {
         removed.push(key);
       } else if (getType(obj1[key]) !== getType(obj2[key])) {
-        differentTypes.push({ key, type: [getType(obj1[key]), getType(obj2[key])]});
+        differentTypes.push({ key, type: [getType(obj1[key]), getType(obj2[key])] });
       }
     }
 
@@ -66,11 +83,11 @@ export default function Home() {
 
   try {
     obj1 = JSON.parse(text1);
-  } catch (e) {}
+  } catch (e) { }
 
   try {
     obj2 = JSON.parse(text2);
-  } catch (e) {}
+  } catch (e) { }
 
   const { added, removed, differentTypes } = getKeyDiff(obj1, obj2);
 
@@ -80,11 +97,11 @@ export default function Home() {
         <div className="grid grid-cols-3 gap-10">
           <div className='shadow-sm bg-gray-100'>
             <label htmlFor="before">before</label>
-            <CodeEditor name="before" value={text1} onChange={(e) => setText1(e.target.value)} language='json'/>
+            <CodeEditor name="before" value={text1} onChange={(e) => setText1(e.target.value)} language='json' />
           </div>
           <div className='shadow-sm bg-gray-100'>
             <label htmlFor='after'>after</label>
-            <CodeEditor name="after" value={text2} onChange={(e) => setText2(e.target.value)} language='json'/>
+            <CodeEditor name="after" value={text2} onChange={(e) => setText2(e.target.value)} language='json' />
           </div>
           <div className='shadow-sm bg-gray-100'>
             <div>追加されたキー</div>
@@ -94,15 +111,15 @@ export default function Home() {
                 <TabsTrigger value="TypedDict">TypedDict</TabsTrigger>
               </TabsList>
               <TabsContent value="Json">
-              <CodeEditor value={JSON.stringify(added, null, 4)} language="python"></CodeEditor>
+                <CodeEditor value={JSON.stringify(added, null, 4)} language="python"></CodeEditor>
               </TabsContent>
-              
-              
+
+
               <TabsContent value="TypedDict">
-              <CodeEditor value={createTypedDict(added)} language="python"></CodeEditor>
+                <CodeEditor value={createTypedDict(added)} language="python"></CodeEditor>
               </TabsContent>
             </Tabs>
-            
+
             <div>削除されたキー</div>
             <CodeEditor value={JSON.stringify(removed, null, 4)} language="json"></CodeEditor>
             <div>型が異なるキー</div>
@@ -112,15 +129,15 @@ export default function Home() {
                 <TabsTrigger value="TypedDict">TypedDict</TabsTrigger>
               </TabsList>
               <TabsContent value="Json">
-              <CodeEditor value={JSON.stringify(differentTypes, null, 4)} language="python"></CodeEditor>
+                <CodeEditor value={JSON.stringify(differentTypes, null, 4)} language="python"></CodeEditor>
               </TabsContent>
-              
-              
+
+
               <TabsContent value="TypedDict">
-              <CodeEditor value={createTypedDict(differentTypes)} language="python"></CodeEditor>
+                <CodeEditor value={createTypedDict(differentTypes)} language="python"></CodeEditor>
               </TabsContent>
             </Tabs>
-            
+
           </div>
         </div>
       </div>
